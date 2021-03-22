@@ -33,6 +33,8 @@ class ZombieSurvival : JavaPlugin(), Listener, Runnable {
         }
     }
     override fun onEnable() {
+        Bukkit.getServer().animalSpawnLimit.times(0)
+        Bukkit.getServer().monsterSpawnLimit.times(0)
         kommand {
             register("zs") {
                 ZombieKommand.register(this)
@@ -191,7 +193,6 @@ class ZombieSurvival : JavaPlugin(), Listener, Runnable {
     fun onItemSwap(event: PlayerSwapHandItemsEvent) {
         val item = event.offHandItem ?: return
         if(item.isSimilar(vaccine)) {
-            event.isCancelled = true
             for(sur in Zombie.survivers) {
                 val survivor = Bukkit.getPlayer(sur)
                 if(survivor === event.player) {
