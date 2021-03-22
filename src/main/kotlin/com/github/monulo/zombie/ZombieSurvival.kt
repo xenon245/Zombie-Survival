@@ -189,8 +189,9 @@ class ZombieSurvival : JavaPlugin(), Listener, Runnable {
     }
     @EventHandler
     fun onItemSwap(event: PlayerSwapHandItemsEvent) {
-        val item = event.mainHandItem ?: return
+        val item = event.offHandItem ?: return
         if(item.isSimilar(vaccine)) {
+            event.isCancelled = true
             for(sur in Zombie.survivers) {
                 val survivor = Bukkit.getPlayer(sur)
                 if(survivor === event.player) {
@@ -218,6 +219,9 @@ class ZombieSurvival : JavaPlugin(), Listener, Runnable {
                         world.getNearbyEntities(box, filter).forEach { entity ->
                             Zombie.zombie.remove(entity.name)
                             Zombie.survivers.add(entity.name)
+                            if(entity != null) {
+                                item.amount--
+                            }
                         }
                     }
                 }

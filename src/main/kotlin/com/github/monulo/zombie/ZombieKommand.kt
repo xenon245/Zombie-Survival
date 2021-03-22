@@ -32,8 +32,6 @@ object ZombieKommand {
     }
     private fun superzombie(player: Player, sender: CommandSender) {
         Zombie.run {
-            survivers.add(player.name)
-            zombie.remove(player.name)
             superzombie.add(player.name)
         }
         sender.sendFeedback("${player.name}님을 슈퍼좀비로 만들었습니다.")
