@@ -1,0 +1,6 @@
+#Server
+.server/
+#IntelliJ
+.idea/
+.gradle/
+build/

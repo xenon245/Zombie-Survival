@@ -1,0 +1,13 @@
+main: com.github.monulo.zombie.ZombieSurvival
+version: 1.0
+name: Zombie-Survival
+api-version: 1.16
+depend: [Kotlin, ProtocolLib]
+commands:
+  zs:
+    description: command for this plugin
+    permission: command.zombie
+permissions:
+  command.zombie:
+    description: permission for this plugin
+    default: op
