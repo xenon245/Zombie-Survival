@@ -5,6 +5,9 @@ import com.github.monun.kommand.kommand
 import com.github.monun.tap.effect.playFirework
 import com.github.monun.tap.fake.FakeEntityServer
 import org.bukkit.*
+import org.bukkit.entity.Damageable
+import org.bukkit.entity.Entity
+import org.bukkit.entity.LivingEntity
 import org.bukkit.entity.Player
 import org.bukkit.event.EventHandler
 import org.bukkit.event.Listener
@@ -12,15 +15,15 @@ import org.bukkit.event.block.Action
 import org.bukkit.event.entity.EntityDamageByEntityEvent
 import org.bukkit.event.entity.EntityDamageEvent
 import org.bukkit.event.entity.PlayerDeathEvent
-import org.bukkit.event.player.PlayerInteractEvent
-import org.bukkit.event.player.PlayerJoinEvent
-import org.bukkit.event.player.PlayerRespawnEvent
+import org.bukkit.event.player.*
 import org.bukkit.inventory.ItemStack
 import org.bukkit.inventory.ShapedRecipe
 import org.bukkit.plugin.java.JavaPlugin
 import org.bukkit.potion.PotionEffect
 import org.bukkit.potion.PotionEffectType
+import org.bukkit.util.BoundingBox
 import org.bukkit.util.NumberConversions
+import java.util.function.Predicate
 import kotlin.random.Random
 
 class ZombieSurvival : JavaPlugin(), Listener, Runnable {
@@ -69,7 +72,6 @@ class ZombieSurvival : JavaPlugin(), Listener, Runnable {
         Zombie.fakeEntityServer.addPlayer(event.player)
         if(!event.player.hasPlayedBefore()) {
             Zombie.zombie.add(event.player.name)
-            event.player.teleport(getSpawnLocation(event.player.name))
         }
     }
     @EventHandler
@@ -87,6 +89,16 @@ class ZombieSurvival : JavaPlugin(), Listener, Runnable {
                 zombie.addPotionEffect(PotionEffect(PotionEffectType.SPEED, 2, 2, true, false, false))
             } else {
                 zombie.addPotionEffect(PotionEffect(PotionEffectType.SLOW_DIGGING, 2, 0, true, false, false))
+            }
+            if(zombie.inventory.contains(vaccine)) {
+                zombie.inventory.remove(vaccine)
+                zombie.inventory.run {
+                    addItem(ItemStack(Material.HEART_OF_THE_SEA))
+                    addItem(ItemStack(Material.HONEY_BOTTLE))
+                    addItem(ItemStack(Material.PHANTOM_MEMBRANE))
+                    addItem(ItemStack(Material.SEA_PICKLE))
+                    addItem(ItemStack(Material.GOLDEN_APPLE))
+                }
             }
         }
         Zombie.fakeEntityServer.update()
@@ -174,6 +186,47 @@ class ZombieSurvival : JavaPlugin(), Listener, Runnable {
                 }
             }
         }
+    }
+    @EventHandler
+    fun onItemSwap(event: PlayerSwapHandItemsEvent) {
+        val item = event.mainHandItem ?: return
+        if(item.isSimilar(vaccine)) {
+            for(sur in Zombie.survivers) {
+                val survivor = Bukkit.getPlayer(sur)
+                if(survivor === event.player) {
+                    survivor.sendMessage("hi")
+                    val filter = Predicate<Entity> {
+                        when(it) {
+                            survivor -> false
+                            is Player -> true
+                            is LivingEntity -> false
+                            else -> false
+                        }
+                    }
+                    survivor.world.rayTrace(survivor.location, survivor.location.direction, 10.0, FluidCollisionMode.NEVER, false, 1.0, filter)?.let { result ->
+                        val hitPosition = result.hitPosition
+                        val world = result.hitEntity?.world ?: return
+                        val hitLocation = hitPosition.toLocation(world)
+                        val box = BoundingBox.of(hitPosition, 3.0, 3.0, 3.0)
+                        val firework = FireworkEffect
+                            .builder()
+                            .with(FireworkEffect.Type.BALL_LARGE)
+                            .withColor(Color.AQUA)
+                            .build()
+
+                        world.playFirework(hitLocation, firework)
+                        world.getNearbyEntities(box, filter).forEach { entity ->
+                            Zombie.zombie.remove(entity.name)
+                            Zombie.survivers.add(entity.name)
+                        }
+                    }
+                }
+            }
+        }
+    }
+    @EventHandler
+    fun onPlayerChat(event: AsyncPlayerChatEvent) {
+        event.isCancelled = true
     }
     @EventHandler
     fun onPlayerDeath(event: PlayerDeathEvent) {

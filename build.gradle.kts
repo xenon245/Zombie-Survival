@@ -16,7 +16,7 @@ repositories {
 dependencies {
     compileOnly(kotlin("stdlib"))
     compileOnly("com.destroystokyo.paper:paper-api:1.16.5-R0.1-SNAPSHOT")
-    implementation("com.github.monulo:kommand:0.7.+")
+    implementation("com.github.monun:kommand:0.7.+")
     implementation("com.github.monun:tap:3.4.0")
 }
 tasks {
