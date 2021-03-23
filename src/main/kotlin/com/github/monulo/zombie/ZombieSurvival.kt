@@ -12,12 +12,14 @@ import org.bukkit.entity.Player
 import org.bukkit.event.EventHandler
 import org.bukkit.event.Listener
 import org.bukkit.event.block.Action
+import org.bukkit.event.block.BlockPlaceEvent
 import org.bukkit.event.entity.EntityDamageByEntityEvent
 import org.bukkit.event.entity.EntityDamageEvent
 import org.bukkit.event.entity.PlayerDeathEvent
 import org.bukkit.event.player.*
 import org.bukkit.inventory.ItemStack
 import org.bukkit.inventory.ShapedRecipe
+import org.bukkit.inventory.meta.CompassMeta
 import org.bukkit.plugin.java.JavaPlugin
 import org.bukkit.potion.PotionEffect
 import org.bukkit.potion.PotionEffectType
@@ -33,8 +35,6 @@ class ZombieSurvival : JavaPlugin(), Listener, Runnable {
         }
     }
     override fun onEnable() {
-        Bukkit.getServer().animalSpawnLimit.times(0)
-        Bukkit.getServer().monsterSpawnLimit.times(0)
         kommand {
             register("zs") {
                 ZombieKommand.register(this)
@@ -85,7 +85,6 @@ class ZombieSurvival : JavaPlugin(), Listener, Runnable {
         for(zombie1 in Zombie.zombie) {
             val zombie = Bukkit.getPlayer(zombie1) ?: return
             zombie.addPotionEffect(PotionEffect(PotionEffectType.POISON, 2, 1, true, false, false))
-            zombie.addPotionEffect(PotionEffect(PotionEffectType.INCREASE_DAMAGE, 2, 0, true, false, false))
             if(!Bukkit.getServer().worlds.first().isDayTime) {
                 zombie.addPotionEffect(PotionEffect(PotionEffectType.FAST_DIGGING, 2, 0, true, false, false))
                 zombie.addPotionEffect(PotionEffect(PotionEffectType.SPEED, 2, 2, true, false, false))
@@ -102,6 +101,10 @@ class ZombieSurvival : JavaPlugin(), Listener, Runnable {
                     addItem(ItemStack(Material.GOLDEN_APPLE))
                 }
             }
+        }
+        for(zombie1 in Zombie.superzombie) {
+            val zombie = Bukkit.getPlayer(zombie1) ?: return
+            zombie.healthScale = 10.0
         }
         Zombie.fakeEntityServer.update()
     }
@@ -124,12 +127,6 @@ class ZombieSurvival : JavaPlugin(), Listener, Runnable {
     fun onPlayerDamagedByEntity(event: EntityDamageByEntityEvent) {
         if(event.entity is Player) {
             val player = event.entity as Player
-            for(zombie1 in Zombie.zombie) {
-                val zombie = Bukkit.getPlayer(zombie1)
-                if(zombie === player) {
-                    player.addPotionEffect(PotionEffect(PotionEffectType.SLOW, 5 * 20, 1, true, false, true))
-                }
-            }
             for(surviver1 in Zombie.survivers) {
                 val surviver = Bukkit.getPlayer(surviver1)
                 if(surviver === player) {
@@ -144,8 +141,12 @@ class ZombieSurvival : JavaPlugin(), Listener, Runnable {
             val player = event.entity as Player
             for(zombie1 in Zombie.zombie) {
                 val zombie = Bukkit.getPlayer(zombie1)
-                if(zombie === player) {
-                    player.addPotionEffect(PotionEffect(PotionEffectType.SLOW, 5 * 20, 2, true, false, true))
+                if(event.cause == EntityDamageEvent.DamageCause.FALL) {
+                    if(player.inventory.helmet == null && player.inventory.chestplate == null && player.inventory.boots == null && player.inventory.leggings == null) {
+                        if(zombie === player) {
+                            player.addPotionEffect(PotionEffect(PotionEffectType.SLOW, 5 * 20, 2, true, false, true))
+                        }
+                    }
                 }
             }
         }
@@ -185,6 +186,25 @@ class ZombieSurvival : JavaPlugin(), Listener, Runnable {
                         Bukkit.getScheduler().runTaskLater(this, task::cancel, 3 * 20)
                         event.item!!.amount--
                     }
+                }
+            }
+            for(zombie1 in Zombie.zombie) {
+                val zombie = Bukkit.getPlayer(zombie1)
+                if(zombie === event.player && event.player.getPotionEffect(PotionEffectType.POISON) != null) {
+                    if(item.type == Material.GOLD_INGOT) {
+
+                    }
+                }
+            }
+        }
+    }
+    @EventHandler
+    fun onPlayerBlockPlace(event: BlockPlaceEvent) {
+        for(zombie1 in Zombie.zombie) {
+            val zombie = Bukkit.getPlayer(zombie1)
+            if(zombie === event.player) {
+                if(event.block.type == Material.OBSIDIAN) {
+                    event.isCancelled = true
                 }
             }
         }
