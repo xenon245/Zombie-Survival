@@ -205,7 +205,6 @@ if ($Debug)
 
 [void]$JVMArgs.Add("-jar")
 [void]$JVMArgs.Add($ServerJar)
-[void]$JVMArgs.Add("--nogui")
 
 # Run
 While ($true)

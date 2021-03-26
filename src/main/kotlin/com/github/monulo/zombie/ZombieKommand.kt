@@ -3,6 +3,7 @@ package com.github.monulo.zombie
 import com.github.monun.kommand.KommandBuilder
 import com.github.monun.kommand.argument.player
 import com.github.monun.kommand.sendFeedback
+import org.bukkit.Bukkit
 import org.bukkit.command.CommandSender
 import org.bukkit.entity.Player
 
@@ -34,6 +35,20 @@ object ZombieKommand {
         Zombie.run {
             superzombie.add(player.name)
         }
+        for(zombie1 in Zombie.zombie) {
+            val zombie = Bukkit.getPlayer(zombie1)!!
+            val surt = Bukkit.getScoreboardManager().mainScoreboard.getTeam("survivor") ?: return
+            val zomt = Bukkit.getScoreboardManager().mainScoreboard.getTeam("zombie") ?: return
+            zomt.addPlayer(zombie)
+            surt.removePlayer(zombie)
+        }
+        for(sur1 in Zombie.survivers) {
+            val sur = Bukkit.getPlayer(sur1)!!
+            val surt = Bukkit.getScoreboardManager().mainScoreboard.getTeam("survivor") ?: return
+            val zomt = Bukkit.getScoreboardManager().mainScoreboard.getTeam("zombie") ?: return
+            zomt.removePlayer(sur)
+            surt.addPlayer(sur)
+        }
         sender.sendFeedback("${player.name}님을 슈퍼좀비로 만들었습니다.")
     }
     private fun zombie(player: Player, sender: CommandSender) {
@@ -42,6 +57,20 @@ object ZombieKommand {
             zombie.add(player.name)
             superzombie.remove(player.name)
         }
+        for(zombie1 in Zombie.zombie) {
+            val zombie = Bukkit.getPlayer(zombie1)!!
+            val surt = Bukkit.getScoreboardManager().mainScoreboard.getTeam("survivor") ?: return
+            val zomt = Bukkit.getScoreboardManager().mainScoreboard.getTeam("zombie") ?: return
+            zomt.addPlayer(zombie)
+            surt.removePlayer(zombie)
+        }
+        for(sur1 in Zombie.survivers) {
+            val sur = Bukkit.getPlayer(sur1)!!
+            val surt = Bukkit.getScoreboardManager().mainScoreboard.getTeam("survivor") ?: return
+            val zomt = Bukkit.getScoreboardManager().mainScoreboard.getTeam("zombie") ?: return
+            zomt.removePlayer(sur)
+            surt.addPlayer(sur)
+        }
         sender.sendFeedback("${player.name}님을 좀비로 만들었습니다.")
     }
     private fun survivor(player: Player, sender: CommandSender) {
@@ -49,6 +78,20 @@ object ZombieKommand {
             survivers.add(player.name)
             zombie.remove(player.name)
             superzombie.remove(player.name)
+        }
+        for(zombie1 in Zombie.zombie) {
+            val zombie = Bukkit.getPlayer(zombie1)!!
+            val surt = Bukkit.getScoreboardManager().mainScoreboard.getTeam("survivor") ?: return
+            val zomt = Bukkit.getScoreboardManager().mainScoreboard.getTeam("zombie") ?: return
+            zomt.addPlayer(zombie)
+            surt.removePlayer(zombie)
+        }
+        for(sur1 in Zombie.survivers) {
+            val sur = Bukkit.getPlayer(sur1)!!
+            val surt = Bukkit.getScoreboardManager().mainScoreboard.getTeam("survivor") ?: return
+            val zomt = Bukkit.getScoreboardManager().mainScoreboard.getTeam("zombie") ?: return
+            zomt.removePlayer(sur)
+            surt.addPlayer(sur)
         }
         sender.sendFeedback("${player.name}님을 생존자로 만들었습니다.")
     }

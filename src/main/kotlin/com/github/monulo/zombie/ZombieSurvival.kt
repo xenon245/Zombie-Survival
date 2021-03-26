@@ -36,9 +36,6 @@ class ZombieSurvival : JavaPlugin(), Listener, Runnable {
         }
     }
     override fun onEnable() {
-        Bukkit.getServer().worlds.first().entities.forEach { e ->
-            e.remove()
-        }
         if(Bukkit.getScoreboardManager().mainScoreboard.getTeam("zombie") == null) {
             Bukkit.getScoreboardManager().mainScoreboard.registerNewTeam("zombie")
         }
@@ -55,6 +52,9 @@ class ZombieSurvival : JavaPlugin(), Listener, Runnable {
             }
         }
         server.run {
+            worlds.first().setGameRule(GameRule.REDUCED_DEBUG_INFO, true)
+            worlds.first().setGameRule(GameRule.RANDOM_TICK_SPEED, 0)
+            worlds.first().setGameRule(GameRule.DO_IMMEDIATE_RESPAWN, true)
             pluginManager.registerEvents(this@ZombieSurvival, this@ZombieSurvival)
             scheduler.runTaskTimer(this@ZombieSurvival, this@ZombieSurvival, 0L, 1L)
         }
@@ -118,13 +118,24 @@ class ZombieSurvival : JavaPlugin(), Listener, Runnable {
         }
         for(zombie1 in Zombie.superzombie) {
             val zombie = Bukkit.getPlayer(zombie1) ?: return
-            zombie.healthScale = 10.0
+            if(Zombie.survivers.contains(zombie.name)) {
+                zombie.healthScale = 20.0
+            } else {
+                zombie.healthScale = 10.0
+            }
         }
         Zombie.fakeEntityServer.update()
     }
     @EventHandler
     fun onPlayerRespawn(event: PlayerRespawnEvent) {
         event.respawnLocation = getSpawnLocation(event.player.name)
+        if(Bukkit.getScoreboardManager().mainScoreboard.getTeam("zombie")?.hasPlayer(event.player) == true) {
+            Zombie.zombie.add(event.player.name)
+            Zombie.survivers.remove(event.player.name)
+            for(player in Bukkit.getOnlinePlayers()) {
+                player.sendTitle("${event.player.name}", "님이 좀비가 되었습니다.", 10, 20, 10)
+            }
+        }
     }
     @EventHandler
     fun onCraft(event: CraftItemEvent) {
@@ -148,18 +159,6 @@ class ZombieSurvival : JavaPlugin(), Listener, Runnable {
                     event.player.inventory.removeItem(vaccine)
                 }
             }
-        }
-    }
-    @EventHandler
-    fun onEntitySpawn(event: EntitySpawnEvent) {
-        if(event.entityType != EntityType.PLAYER && event.entityType != EntityType.DROPPED_ITEM) {
-            event.entity.remove()
-        }
-    }
-    @EventHandler
-    fun onEntitySpawns(event: EntityMoveEvent) {
-        if(event.entityType != EntityType.PLAYER && event.entityType != EntityType.DROPPED_ITEM) {
-            event.entity.remove()
         }
     }
     private fun getSpawnLocation(name: String): Location {
@@ -271,53 +270,24 @@ class ZombieSurvival : JavaPlugin(), Listener, Runnable {
         }
     }
     @EventHandler
-    fun onItemSwap(event: PlayerSwapHandItemsEvent) {
-        val item = event.offHandItem ?: return
-        if(item.isSimilar(vaccine)) {
-            for(sur in Zombie.survivers) {
-                val survivor = Bukkit.getPlayer(sur)
-                if(survivor === event.player) {
-                    survivor.sendMessage("hi")
-                    val filter = Predicate<Entity> {
-                        when(it) {
-                            survivor -> false
-                            is Player -> true
-                            is LivingEntity -> false
-                            else -> false
-                        }
-                    }
-                    survivor.world.rayTrace(survivor.location, survivor.location.direction, 10.0, FluidCollisionMode.NEVER, false, 1.0, filter)?.let { result ->
-                        val hitPosition = result.hitPosition
-                        val world = result.hitEntity?.world ?: return
-                        val hitLocation = hitPosition.toLocation(world)
-                        val box = BoundingBox.of(hitPosition, 3.0, 3.0, 3.0)
-                        val firework = FireworkEffect
-                            .builder()
-                            .with(FireworkEffect.Type.BALL_LARGE)
-                            .withColor(Color.AQUA)
-                            .build()
-
-                        world.playFirework(hitLocation, firework)
-                        world.getNearbyEntities(box, filter).forEach { entity ->
-                            Zombie.zombie.remove(entity.name)
-                            Zombie.survivers.add(entity.name)
-                            if(entity != null) {
-                                item.amount--
-                            }
-                        }
-                    }
-                }
-            }
-        }
-    }
-    @EventHandler
     fun onPlayerChat(event: AsyncPlayerChatEvent) {
         event.isCancelled = true
     }
     @EventHandler
     fun onPlayerDeath(event: PlayerDeathEvent) {
+        for(zombie1 in Zombie.zombie) {
+            val zombie = Bukkit.getPlayer(zombie1)!!
+            val surt = Bukkit.getScoreboardManager().mainScoreboard.getTeam("survivor") ?: return
+            val zomt = Bukkit.getScoreboardManager().mainScoreboard.getTeam("zombie") ?: return
+            zomt.addPlayer(zombie)
+            surt.removePlayer(zombie)
+        }
         for(survivor1 in Zombie.survivers) {
-            val survivor = Bukkit.getPlayer(survivor1)
+            val survivor = Bukkit.getPlayer(survivor1) ?: return
+            val surt = Bukkit.getScoreboardManager().mainScoreboard.getTeam("survivor") ?: return
+            val zomt = Bukkit.getScoreboardManager().mainScoreboard.getTeam("zombie") ?: return
+            surt.removePlayer(survivor)
+            zomt.addPlayer(survivor)
             for(zombie1 in Zombie.superzombie) {
                 val superzombie = Bukkit.getPlayer(zombie1)
                 if(event.entity === superzombie) {
