@@ -6,16 +6,14 @@ import com.github.monun.tap.effect.playFirework
 import com.github.monun.tap.fake.FakeEntityServer
 import net.kyori.adventure.text.format.NamedTextColor
 import org.bukkit.*
-import org.bukkit.entity.Damageable
-import org.bukkit.entity.Entity
-import org.bukkit.entity.LivingEntity
-import org.bukkit.entity.Player
+import org.bukkit.entity.*
 import org.bukkit.event.EventHandler
 import org.bukkit.event.Listener
 import org.bukkit.event.block.Action
 import org.bukkit.event.block.BlockPlaceEvent
 import org.bukkit.event.entity.EntityDamageByEntityEvent
 import org.bukkit.event.entity.EntityDamageEvent
+import org.bukkit.event.entity.EntitySpawnEvent
 import org.bukkit.event.entity.PlayerDeathEvent
 import org.bukkit.event.inventory.CraftItemEvent
 import org.bukkit.event.player.*
@@ -155,6 +153,12 @@ class ZombieSurvival : JavaPlugin(), Listener, Runnable {
                     Zombie.survivers.add(event.player.name)
                 }
             }
+        }
+    }
+    @EventHandler
+    fun onEntitySpawn(event: EntitySpawnEvent) {
+        if(event.entityType != EntityType.PLAYER && event.entityType != EntityType.DROPPED_ITEM) {
+            event.isCancelled = true
         }
     }
     private fun getSpawnLocation(name: String): Location {
