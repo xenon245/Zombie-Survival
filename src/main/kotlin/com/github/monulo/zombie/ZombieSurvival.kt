@@ -17,6 +17,7 @@ import org.bukkit.event.block.BlockPlaceEvent
 import org.bukkit.event.entity.EntityDamageByEntityEvent
 import org.bukkit.event.entity.EntityDamageEvent
 import org.bukkit.event.entity.PlayerDeathEvent
+import org.bukkit.event.inventory.CraftItemEvent
 import org.bukkit.event.player.*
 import org.bukkit.inventory.ItemStack
 import org.bukkit.inventory.ShapedRecipe
@@ -132,6 +133,29 @@ class ZombieSurvival : JavaPlugin(), Listener, Runnable {
     @EventHandler
     fun onPlayerRespawn(event: PlayerRespawnEvent) {
         event.respawnLocation = getSpawnLocation(event.player.name)
+    }
+    @EventHandler
+    fun onCraft(event: CraftItemEvent) {
+        for(zom in Zombie.zombie) {
+            val zombie = Bukkit.getPlayer(zom)
+            if(event.whoClicked === zombie) {
+                if(event.recipe.result.isSimilar(vaccine)) {
+                    event.isCancelled = true
+                }
+            }
+        }
+    }
+    @EventHandler
+    fun onPlayerEatVaccine(event: PlayerAttemptPickupItemEvent) {
+        for(zom in Zombie.zombie) {
+            val zombie = Bukkit.getPlayer(zom)
+            if(zombie === event.player) {
+                if(event.item.itemStack.isSimilar(vaccine)) {
+                    Zombie.zombie.remove(event.player.name)
+                    Zombie.survivers.add(event.player.name)
+                }
+            }
+        }
     }
     private fun getSpawnLocation(name: String): Location {
         val seed = name.hashCode()
