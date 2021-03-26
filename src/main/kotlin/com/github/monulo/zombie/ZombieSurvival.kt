@@ -35,6 +35,9 @@ class ZombieSurvival : JavaPlugin(), Listener, Runnable {
         }
     }
     override fun onEnable() {
+        Bukkit.getServer().worlds.first().entities.forEach { e ->
+            e.remove()
+        }
         if(Bukkit.getScoreboardManager().mainScoreboard.getTeam("zombie") == null) {
             Bukkit.getScoreboardManager().mainScoreboard.registerNewTeam("zombie")
         }
