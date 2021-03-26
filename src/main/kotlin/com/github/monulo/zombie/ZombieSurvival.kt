@@ -4,6 +4,7 @@ import com.destroystokyo.paper.event.server.PaperServerListPingEvent
 import com.github.monun.kommand.kommand
 import com.github.monun.tap.effect.playFirework
 import com.github.monun.tap.fake.FakeEntityServer
+import io.papermc.paper.event.entity.EntityMoveEvent
 import net.kyori.adventure.text.format.NamedTextColor
 import org.bukkit.*
 import org.bukkit.entity.*
@@ -152,7 +153,13 @@ class ZombieSurvival : JavaPlugin(), Listener, Runnable {
     @EventHandler
     fun onEntitySpawn(event: EntitySpawnEvent) {
         if(event.entityType != EntityType.PLAYER && event.entityType != EntityType.DROPPED_ITEM) {
-            event.isCancelled = true
+            event.entity.remove()
+        }
+    }
+    @EventHandler
+    fun onEntitySpa(event: EntityMoveEvent) {
+        if(event.entityType != EntityType.PLAYER && event.entityType != EntityType.DROPPED_ITEM) {
+            event.entity.remove()
         }
     }
     private fun getSpawnLocation(name: String): Location {
