@@ -26,6 +26,7 @@ import org.bukkit.potion.PotionEffect
 import org.bukkit.potion.PotionEffectType
 import org.bukkit.util.BoundingBox
 import org.bukkit.util.NumberConversions
+import java.io.File
 import java.util.function.Predicate
 import kotlin.random.Random
 
@@ -86,18 +87,20 @@ class ZombieSurvival : JavaPlugin(), Listener, Runnable {
     @EventHandler
     fun onJoin(event: PlayerJoinEvent) {
         Zombie.fakeEntityServer.addPlayer(event.player)
-        if(!event.player.hasPlayedBefore()) {
-            Zombie.zombie.add(event.player.name)
-        }
         for(zombie1 in Zombie.zombie) {
             val zombie = Bukkit.getPlayer(zombie1)!!
             val zomt = Bukkit.getScoreboardManager().mainScoreboard.getTeam("zombie") ?: return
             zomt.addPlayer(zombie)
         }
+        var survivors = arrayListOf<Player>()
         for(sur1 in Zombie.survivers) {
-            val sur = Bukkit.getPlayer(sur1)!!
+            val sur = Bukkit.getPlayer(sur1) ?: return
+            survivors.add(sur)
             val surt = Bukkit.getScoreboardManager().mainScoreboard.getTeam("survivor") ?: return
             surt.addPlayer(sur)
+        }
+        if(!survivors.contains(event.player)) {
+            Zombie.zombie.add(event.player.name)
         }
     }
     @EventHandler
