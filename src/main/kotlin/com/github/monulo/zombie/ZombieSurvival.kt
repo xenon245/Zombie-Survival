@@ -157,7 +157,7 @@ class ZombieSurvival : JavaPlugin(), Listener, Runnable {
         }
     }
     @EventHandler
-    fun onEntitySpa(event: EntityMoveEvent) {
+    fun onEntitySpawns(event: EntityMoveEvent) {
         if(event.entityType != EntityType.PLAYER && event.entityType != EntityType.DROPPED_ITEM) {
             event.entity.remove()
         }
@@ -242,7 +242,18 @@ class ZombieSurvival : JavaPlugin(), Listener, Runnable {
                 val zombie = Bukkit.getPlayer(zombie1)
                 if(zombie === event.player && event.player.getPotionEffect(PotionEffectType.POISON) != null) {
                     if(item.type == Material.GOLD_INGOT) {
-
+                        for(sz in Zombie.superzombie) {
+                            val supz = Bukkit.getPlayer(sz) ?: return
+                            val compass = ItemStack(Material.COMPASS)
+                            lateinit var compassMeta: CompassMeta
+                            compassMeta.lodestone?.run {
+                                x = zombie.location.x
+                                y = zombie.location.y - 1.0
+                                z = zombie.location.z
+                            }
+                            compass.itemMeta = compassMeta
+                            supz.inventory.addItem(compass)
+                        }
                     }
                 }
             }
