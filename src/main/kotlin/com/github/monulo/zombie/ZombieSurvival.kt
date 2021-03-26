@@ -111,16 +111,6 @@ class ZombieSurvival : JavaPlugin(), Listener, Runnable {
             } else {
                 zombie.addPotionEffect(PotionEffect(PotionEffectType.SLOW_DIGGING, 2, 0, true, false, false))
             }
-            if(zombie.inventory.contains(vaccine)) {
-                zombie.inventory.remove(vaccine)
-                zombie.inventory.run {
-                    addItem(ItemStack(Material.HEART_OF_THE_SEA))
-                    addItem(ItemStack(Material.HONEY_BOTTLE))
-                    addItem(ItemStack(Material.PHANTOM_MEMBRANE))
-                    addItem(ItemStack(Material.SEA_PICKLE))
-                    addItem(ItemStack(Material.GOLDEN_APPLE))
-                }
-            }
         }
         for(zombie1 in Zombie.superzombie) {
             val zombie = Bukkit.getPlayer(zombie1) ?: return
@@ -151,6 +141,7 @@ class ZombieSurvival : JavaPlugin(), Listener, Runnable {
                 if(event.item.itemStack.isSimilar(vaccine)) {
                     Zombie.zombie.remove(event.player.name)
                     Zombie.survivers.add(event.player.name)
+                    event.player.inventory.removeItem(vaccine)
                 }
             }
         }
