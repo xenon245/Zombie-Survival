@@ -62,7 +62,7 @@ class ZombieSurvival : JavaPlugin(), Listener, Runnable {
         Bukkit.getWorlds().first().apply {
             val border = worldBorder
             border.center = Location(this, 0.0, 0.0, 0.0)
-            border.size = 16384.0
+            border.size = 5000.0
             spawnLocation = getHighestBlockAt(0, 0).location
         }
         Zombie.fakeEntityServer = FakeEntityServer.create(this)
