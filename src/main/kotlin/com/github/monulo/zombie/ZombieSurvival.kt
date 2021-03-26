@@ -4,6 +4,7 @@ import com.destroystokyo.paper.event.server.PaperServerListPingEvent
 import com.github.monun.kommand.kommand
 import com.github.monun.tap.effect.playFirework
 import com.github.monun.tap.fake.FakeEntityServer
+import net.kyori.adventure.text.format.NamedTextColor
 import org.bukkit.*
 import org.bukkit.entity.Damageable
 import org.bukkit.entity.Entity
@@ -35,6 +36,16 @@ class ZombieSurvival : JavaPlugin(), Listener, Runnable {
         }
     }
     override fun onEnable() {
+        if(Bukkit.getScoreboardManager().mainScoreboard.getTeam("zombie") == null) {
+            Bukkit.getScoreboardManager().mainScoreboard.registerNewTeam("zombie")
+        }
+        if(Bukkit.getScoreboardManager().mainScoreboard.getTeam("survivor") == null) {
+            Bukkit.getScoreboardManager().mainScoreboard.registerNewTeam("survivor")
+        }
+        val zombieteam = Bukkit.getScoreboardManager().mainScoreboard.getTeam("zombie") ?: return
+        zombieteam.color(NamedTextColor.RED)
+        val survivorteam = Bukkit.getScoreboardManager().mainScoreboard.getTeam("survivor") ?: return
+        survivorteam.color(NamedTextColor.AQUA)
         kommand {
             register("zs") {
                 ZombieKommand.register(this)
@@ -74,6 +85,16 @@ class ZombieSurvival : JavaPlugin(), Listener, Runnable {
         Zombie.fakeEntityServer.addPlayer(event.player)
         if(!event.player.hasPlayedBefore()) {
             Zombie.zombie.add(event.player.name)
+        }
+        for(zombie1 in Zombie.zombie) {
+            val zombie = Bukkit.getPlayer(zombie1)!!
+            val zomt = Bukkit.getScoreboardManager().mainScoreboard.getTeam("zombie") ?: return
+            zomt.addPlayer(zombie)
+        }
+        for(sur1 in Zombie.survivers) {
+            val sur = Bukkit.getPlayer(sur1)!!
+            val surt = Bukkit.getScoreboardManager().mainScoreboard.getTeam("survivor") ?: return
+            surt.addPlayer(sur)
         }
     }
     @EventHandler
