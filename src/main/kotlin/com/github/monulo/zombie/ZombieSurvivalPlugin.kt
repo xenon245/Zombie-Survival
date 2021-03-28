@@ -7,6 +7,7 @@ import com.github.monun.tap.fake.FakeEntityServer
 import io.papermc.paper.event.entity.EntityMoveEvent
 import net.kyori.adventure.text.format.NamedTextColor
 import org.bukkit.*
+import org.bukkit.block.Biome
 import org.bukkit.configuration.file.YamlConfiguration
 import org.bukkit.entity.*
 import org.bukkit.event.EventHandler
@@ -301,6 +302,16 @@ class ZombieSurvivalPlugin : JavaPlugin(), Listener, Runnable {
                 val zomt = Bukkit.getScoreboardManager().mainScoreboard.getTeam("zombie") ?: return
                 zomt.addPlayer(zombie)
                 surt.removePlayer(zombie)
+                val biome = Bukkit.getWorlds().first().getBiome(event.entity.location.x.toInt(), event.entity.location.y.toInt(),
+                    event.entity.location.z.toInt()
+                )
+                if(biome.name.contains("DESERT")) {
+                    event.drops += ItemStack(Material.RABBIT_FOOT)
+                } else if(biome.name.contains("OCEAN")) {
+                    event.drops += ItemStack(Material.NAUTILUS_SHELL)
+                } else if(biome == Biome.NETHER_WASTES) {
+                    event.drops += ItemStack(Material.BLAZE_ROD)
+                }
             }
         }
         for(survivor1 in Zombie.survivers) {
