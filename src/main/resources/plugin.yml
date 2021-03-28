@@ -1,4 +1,4 @@
-main: com.github.monulo.zombie.ZombieSurvival
+main: com.github.monulo.zombie.ZombieSurvivalPlugin
 version: 1.0
 name: Zombie-Survival
 api-version: 1.16
