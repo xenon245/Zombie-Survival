@@ -91,15 +91,19 @@ class ZombieSurvivalPlugin : JavaPlugin(), Listener, Runnable {
         val key = NamespacedKey(this, "vaccine")
         val recipe = ShapedRecipe(key, vaccine).apply {
             shape(
-                " S ",
-                " H ",
-                "GBP"
+                "CMG",
+                "ZLB",
+                "RSP"
             )
-            setIngredient('S', Material.SEA_PICKLE)
-            setIngredient('H', Material.HONEY_BOTTLE)
-            setIngredient('G', Material.GOLDEN_APPLE)
-            setIngredient('B', Material.HEART_OF_THE_SEA)
-            setIngredient('P', Material.PHANTOM_MEMBRANE)
+            setIngredient('C', ItemStack(Material.GOLDEN_CARROT))
+            setIngredient('M', ItemStack(Material.MELON_SLICE))
+            setIngredient('G', ItemStack(Material.GOLDEN_APPLE))
+            setIngredient('Z', ItemStack(Material.ZOMBIE_HEAD))
+            setIngredient('L', ItemStack(Material.GLASS_BOTTLE))
+            setIngredient('B', ItemStack(Material.BLAZE_ROD))
+            setIngredient('R', ItemStack(Material.RABBIT_FOOT))
+            setIngredient('S', ItemStack(Material.NAUTILUS_SHELL))
+            setIngredient('P', ItemStack(Material.PHANTOM_MEMBRANE))
         }
         Bukkit.addRecipe(recipe)
     }
@@ -309,8 +313,16 @@ class ZombieSurvivalPlugin : JavaPlugin(), Listener, Runnable {
                     event.drops += ItemStack(Material.RABBIT_FOOT)
                 } else if(biome.name.contains("OCEAN")) {
                     event.drops += ItemStack(Material.NAUTILUS_SHELL)
-                } else if(biome == Biome.NETHER_WASTES) {
+                } else if(event.entity.world.environment == World.Environment.NETHER) {
                     event.drops += ItemStack(Material.BLAZE_ROD)
+                } else if(biome.name.contains("JUNGLE")) {
+                    event.drops += ItemStack(Material.ZOMBIE_HEAD)
+                } else if(event.entity.world.environment == World.Environment.THE_END) {
+                    event.drops += ItemStack(Material.END_CRYSTAL)
+                } else if(biome.name.contains("FOREST")) {
+                    event.drops += ItemStack(Material.MELON_SLICE)
+                } else {
+                    event.drops += ItemStack(Material.PHANTOM_MEMBRANE)
                 }
             }
         }
