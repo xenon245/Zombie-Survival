@@ -340,17 +340,23 @@ class ZombieSurvivalPlugin : JavaPlugin(), Listener, Runnable {
                         Zombie.survivers.remove(event.entity.name)
                         Zombie.superzombie.add(event.entity.name)
                         for(player in Bukkit.getOnlinePlayers()) {
-                            player.sendTitle("${player.name}", "님이 슈퍼좀비가 되었습니다.", 5, 20, 5)
+                            player.sendTitle("${ChatColor.RED}${player.name}", "${ChatColor.RED}님이 슈퍼좀비가 되었습니다.", 5, 20, 5)
                         }
                     } else {
                         Zombie.survivers.remove(survivor.name)
                         Zombie.zombie.add(survivor.name)
                         for(player in Bukkit.getOnlinePlayers()) {
-                            player.sendTitle("${player.name}", "님이 좀비가 되었습니다.", 5, 20, 5)
+                            player.sendTitle("${ChatColor.RED}${player.name}", "${ChatColor.RED}님이 좀비가 되었습니다.", 5, 20, 5)
                         }
                     }
                 }
             }
+        }
+    }
+    @EventHandler
+    fun onEntitySpawn(event: EntitySpawnEvent) {
+        if(event.entityType != EntityType.DROPPED_ITEM && event.entityType != EntityType.PLAYER) {
+            event.isCancelled = true
         }
     }
 }
