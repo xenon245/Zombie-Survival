@@ -74,6 +74,10 @@ class ZombieSurvivalPlugin : JavaPlugin(), Listener, Runnable {
             val zombie = Bukkit.getPlayer(zom)!!
             Zombie.fakeEntityServer.addPlayer(zombie)
         }
+        for(sur in Zombie.survivers) {
+            val survivor = Bukkit.getPlayer(sur)!!
+            Surviverlocation.addPlayer(survivor)
+        }
     }
 
     override fun onDisable() {
@@ -124,6 +128,7 @@ class ZombieSurvivalPlugin : JavaPlugin(), Listener, Runnable {
         for(sur1 in Zombie.survivers) {
             val sur = Bukkit.getPlayer(sur1) ?: return
             survivors.add(sur)
+            Surviverlocation.addPlayer(sur)
             val surt = Bukkit.getScoreboardManager().mainScoreboard.getTeam("survivor") ?: return
             surt.addPlayer(sur)
         }
@@ -160,6 +165,10 @@ class ZombieSurvivalPlugin : JavaPlugin(), Listener, Runnable {
                 val yaml = YamlConfiguration.loadConfiguration(file)
                 ZombieSurvival.load(yaml, player)
             }
+        }
+        for(sur in Zombie.survivers) {
+            val survivor = Bukkit.getPlayer(sur)!!
+            Surviverlocation.update(survivor)
         }
     }
     @EventHandler

@@ -52,6 +52,7 @@ object ZombieKommand {
         sender.sendFeedback("${player.name}님을 슈퍼좀비로 만들었습니다.")
     }
     private fun zombie(player: Player, sender: CommandSender) {
+        Zombie.fakeEntityServer.addPlayer(player)
         Zombie.run {
             survivers.remove(player.name)
             zombie.add(player.name)
@@ -79,6 +80,7 @@ object ZombieKommand {
             zombie.remove(player.name)
             superzombie.remove(player.name)
         }
+        Zombie.fakeEntityServer.removePlayer(player)
         for(zombie1 in Zombie.zombie) {
             val zombie = Bukkit.getPlayer(zombie1)!!
             val surt = Bukkit.getScoreboardManager().mainScoreboard.getTeam("survivor") ?: return
