@@ -96,7 +96,7 @@ class ZombieSurvivalPlugin : JavaPlugin(), Listener, Runnable {
                 "RSP"
             )
             setIngredient('C', ItemStack(Material.GOLDEN_CARROT))
-            setIngredient('M', ItemStack(Material.MELON_SLICE))
+            setIngredient('M', ItemStack(Material.GLISTERING_MELON_SLICE))
             setIngredient('G', ItemStack(Material.GOLDEN_APPLE))
             setIngredient('Z', ItemStack(Material.ZOMBIE_HEAD))
             setIngredient('L', ItemStack(Material.GLASS_BOTTLE))
@@ -320,7 +320,7 @@ class ZombieSurvivalPlugin : JavaPlugin(), Listener, Runnable {
                 } else if(event.entity.world.environment == World.Environment.THE_END) {
                     event.drops += ItemStack(Material.END_CRYSTAL)
                 } else if(biome.name.contains("FOREST")) {
-                    event.drops += ItemStack(Material.MELON_SLICE)
+                    event.drops += ItemStack(Material.GLISTERING_MELON_SLICE)
                 } else {
                     event.drops += ItemStack(Material.PHANTOM_MEMBRANE)
                 }
