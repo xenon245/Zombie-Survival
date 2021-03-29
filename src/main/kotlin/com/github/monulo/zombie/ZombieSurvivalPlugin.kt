@@ -70,6 +70,10 @@ class ZombieSurvivalPlugin : JavaPlugin(), Listener, Runnable {
         }
         Zombie.fakeEntityServer = FakeEntityServer.create(this)
         registerRecipe()
+        for(zom in Zombie.zombie) {
+            val zombie = Bukkit.getPlayer(zom)!!
+            Zombie.fakeEntityServer.addPlayer(zombie)
+        }
     }
 
     override fun onDisable() {
@@ -112,6 +116,7 @@ class ZombieSurvivalPlugin : JavaPlugin(), Listener, Runnable {
         Zombie.fakeEntityServer.addPlayer(event.player)
         for(zombie1 in Zombie.zombie) {
             val zombie = Bukkit.getPlayer(zombie1)!!
+            Zombie.fakeEntityServer.addPlayer(zombie)
             val zomt = Bukkit.getScoreboardManager().mainScoreboard.getTeam("zombie") ?: return
             zomt.addPlayer(zombie)
         }
@@ -187,7 +192,7 @@ class ZombieSurvivalPlugin : JavaPlugin(), Listener, Runnable {
     }
     private fun getSpawnLocation(name: String): Location {
         val seed = name.hashCode()
-        val random = Random(seed.toLong() xor 0x19940423)
+        val random = Random(seed.toLong() xor 0x20070414)
         val world = Bukkit.getWorlds().first()
         val border = world.worldBorder
         val size = border.size / 2.0
@@ -197,13 +202,17 @@ class ZombieSurvivalPlugin : JavaPlugin(), Listener, Runnable {
         return block.location.add(0.5, 1.0, 0.5)
     }
     @EventHandler
+    fun onPlayerQuit(event: PlayerQuitEvent) {
+        Zombie.fakeEntityServer.removePlayer(event.player)
+    }
+    @EventHandler
     fun onPlayerDamagedByEntity(event: EntityDamageByEntityEvent) {
         if(event.entity is Player) {
             val player = event.entity as Player
             for(surviver1 in Zombie.survivers) {
                 val surviver = Bukkit.getPlayer(surviver1)
                 if(surviver === player) {
-                    player.addPotionEffect(PotionEffect(PotionEffectType.POISON, 5 * 20, 2, true, false, false))
+                    player.addPotionEffect(PotionEffect(PotionEffectType.WITHER, 5 * 20, 2, true, false, false))
                 }
             }
         }
@@ -243,6 +252,7 @@ class ZombieSurvivalPlugin : JavaPlugin(), Listener, Runnable {
                             val zom = Bukkit.getPlayer(zombies) ?: return
                             list += zom
                         }
+                        player.setCooldown(Material.DIAMOND, 10 * 20)
                         for(p in list) {
                             p.sendTitle("${ChatColor.RED}GRRR", "${ChatColor.WHITE}${player.name}님이 당신을 소환하려고 합니다.", 3, 20, 3)
                             p.playSound(p.location, Sound.ENTITY_ZOMBIE_AMBIENT, SoundCategory.MASTER, 2.0F, 1.0F)
@@ -256,26 +266,30 @@ class ZombieSurvivalPlugin : JavaPlugin(), Listener, Runnable {
                         val sur = Zombie.survivers[random]
                         val player2 = Bukkit.getPlayer(sur) ?: return
                         val task = Bukkit.getScheduler().runTaskTimer(this, TeleportToHuman(player2, event.player, event.player.location), 0L, 1L)
-                        Bukkit.getScheduler().runTaskLater(this, task::cancel, 3 * 20)
+                        Bukkit.getScheduler().runTaskLater(this, task::cancel, 5 * 20)
                         event.item!!.amount--
+                        player.setCooldown(Material.EMERALD, 10 * 20)
                     }
+                } else if(item.type == Material.BOOK) {
+
                 }
             }
             for(zombie1 in Zombie.zombie) {
                 val zombie = Bukkit.getPlayer(zombie1)
                 if(zombie === event.player && event.player.getPotionEffect(PotionEffectType.POISON) != null) {
-                    if(item.type == Material.GOLD_INGOT) {
-                        for(sz in Zombie.superzombie) {
-                            val supz = Bukkit.getPlayer(sz) ?: return
-                            val compass = ItemStack(Material.COMPASS)
-                            lateinit var compassMeta: CompassMeta
-                            compassMeta.lodestone?.run {
-                                x = zombie.location.x
-                                y = zombie.location.y - 1.0
-                                z = zombie.location.z
+                    if(!Zombie.superzombie.contains(zombie.name)) {
+                        if(item.type == Material.DIAMOND) {
+                            var list = arrayListOf<Player>()
+                            for(sz in Zombie.superzombie) {
+                                list.add(Bukkit.getPlayer(sz)!!)
                             }
-                            compass.itemMeta = compassMeta
-                            supz.inventory.addItem(compass)
+                            list.forEach { z ->
+                                if(Zombie.survivers.contains(z.name)) {
+                                    list.remove(z)
+                                }
+                            }
+                            val book = ItemStack(Material.BOOK).apply { itemMeta.setDisplayName("${event.player}")}
+                            list.shuffled()[0].inventory.addItem(book)
                         }
                     }
                 }
@@ -333,6 +347,7 @@ class ZombieSurvivalPlugin : JavaPlugin(), Listener, Runnable {
             surt.removePlayer(survivor)
             zomt.addPlayer(survivor)
             if(event.entity == survivor) {
+                Zombie.fakeEntityServer.addPlayer(event.entity)
                 for(zombie1 in Zombie.superzombie) {
                     val superzombie = Bukkit.getPlayer(zombie1)
                     if(event.entity === superzombie) {
@@ -361,11 +376,15 @@ class ZombieSurvivalPlugin : JavaPlugin(), Listener, Runnable {
     }
 }
 class Summon(val player: Player, val list : ArrayList<Player>) : Runnable {
+    private var ticks = 0
     override fun run() {
-        val firework = FireworkEffect.builder().withColor(Color.RED).withColor(Color.GREEN).with(FireworkEffect.Type.BALL_LARGE).build()
-        player.location.world.playFirework(player.location, firework, 1.0)
-        for(i in 1..10) {
-            list.shuffled()[i - 1].teleport(player.location)
+        ticks++
+        if(ticks > 40) {
+            val firework = FireworkEffect.builder().withColor(Color.RED).withColor(Color.GREEN).with(FireworkEffect.Type.BALL_LARGE).build()
+            player.location.world.playFirework(player.location, firework, 1.0)
+            for(i in 1..10) {
+                list.shuffled()[i - 1].teleport(player.location)
+            }
         }
     }
 }
@@ -373,9 +392,9 @@ class TeleportToHuman(val target: Player, val player: Player, val location: Loca
     private var ticks = 0
     override fun run() {
         ticks++
-        player.teleport(Location(target.world, target.location.x, target.location.y + 1, target.location.z, target.location.yaw, target.location.pitch))
+        player.teleport(Location(target.world, target.location.x, target.location.y + 1, target.location.z))
         player.gameMode = GameMode.SPECTATOR
-        if(ticks >= 59) {
+        if(ticks >= 5 * 20 - 1) {
             player.teleport(location)
             player.gameMode = GameMode.SURVIVAL
         }
