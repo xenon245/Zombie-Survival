@@ -213,6 +213,12 @@ class ZombieSurvivalPlugin : JavaPlugin(), Listener, Runnable {
     @EventHandler
     fun onPlayerQuit(event: PlayerQuitEvent) {
         Zombie.fakeEntityServer.removePlayer(event.player)
+        for(sur in Zombie.survivers) {
+            val survivor = Bukkit.getPlayer(sur)
+            if(event.player == survivor) {
+                Surviverlocation.removePlayer(event.player)
+            }
+        }
     }
     @EventHandler
     fun onPlayerDamagedByEntity(event: EntityDamageByEntityEvent) {
@@ -280,7 +286,11 @@ class ZombieSurvivalPlugin : JavaPlugin(), Listener, Runnable {
                         player.setCooldown(Material.EMERALD, 10 * 20)
                     }
                 } else if(item.type == Material.BOOK) {
-
+                    val name = item.itemMeta.displayName
+                    val player = Bukkit.getPlayer(name)!!
+                    event.player.teleport(player.location)
+                    event.player.world.strikeLightning(event.player.location)
+                    item.amount--
                 }
             }
             for(zombie1 in Zombie.zombie) {
@@ -297,8 +307,9 @@ class ZombieSurvivalPlugin : JavaPlugin(), Listener, Runnable {
                                     list.remove(z)
                                 }
                             }
-                            val book = ItemStack(Material.BOOK).apply { itemMeta.setDisplayName("${event.player}")}
+                            val book = ItemStack(Material.BOOK).apply { itemMeta = itemMeta.apply { setDisplayName("${event.player.name}") }}
                             list.shuffled()[0].inventory.addItem(book)
+                            item.amount--
                         }
                     }
                 }
@@ -394,6 +405,7 @@ class Summon(val player: Player, val list : ArrayList<Player>) : Runnable {
             for(i in 1..10) {
                 list.shuffled()[i - 1].teleport(player.location)
             }
+            player.world.strikeLightning(player.location)
         }
     }
 }

@@ -26,6 +26,11 @@ object Surviverlocation {
             }
         }
     }
+    fun removePlayer(player: Player) {
+        if(fakeEntity[player] != null) {
+            fakeEntity[player]?.remove()
+        }
+    }
     fun update(player: Player) {
         if(fakeEntity[player] != null) {
             fakeEntity[player]?.moveTo(Location(player.world, player.location.x, player.location.y + 3, player.location.z))

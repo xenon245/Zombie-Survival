@@ -52,6 +52,7 @@ object ZombieKommand {
         sender.sendFeedback("${player.name}님을 슈퍼좀비로 만들었습니다.")
     }
     private fun zombie(player: Player, sender: CommandSender) {
+        Surviverlocation.removePlayer(player)
         Zombie.fakeEntityServer.addPlayer(player)
         Zombie.run {
             survivers.remove(player.name)
@@ -75,6 +76,7 @@ object ZombieKommand {
         sender.sendFeedback("${player.name}님을 좀비로 만들었습니다.")
     }
     private fun survivor(player: Player, sender: CommandSender) {
+        Surviverlocation.addPlayer(player)
         Zombie.run {
             survivers.add(player.name)
             zombie.remove(player.name)
