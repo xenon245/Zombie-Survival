@@ -413,9 +413,13 @@ class TeleportToHuman(val target: Player, val player: Player, val location: Loca
     private var ticks = 0
     override fun run() {
         ticks++
+        if(ticks == 1) {
+            Surviverlocation.addSpectator(target)
+        }
         player.teleport(Location(target.world, target.location.x, target.location.y + 1, target.location.z))
         player.gameMode = GameMode.SPECTATOR
         if(ticks >= 5 * 20 - 1) {
+            Surviverlocation.removeSpectator(target)
             player.teleport(location)
             player.gameMode = GameMode.SURVIVAL
         }
