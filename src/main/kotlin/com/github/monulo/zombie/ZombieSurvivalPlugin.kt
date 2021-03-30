@@ -4,10 +4,8 @@ import com.destroystokyo.paper.event.server.PaperServerListPingEvent
 import com.github.monun.kommand.kommand
 import com.github.monun.tap.effect.playFirework
 import com.github.monun.tap.fake.FakeEntityServer
-import io.papermc.paper.event.entity.EntityMoveEvent
 import net.kyori.adventure.text.format.NamedTextColor
 import org.bukkit.*
-import org.bukkit.block.Biome
 import org.bukkit.configuration.file.YamlConfiguration
 import org.bukkit.entity.*
 import org.bukkit.event.EventHandler
@@ -16,26 +14,22 @@ import org.bukkit.event.block.Action
 import org.bukkit.event.block.BlockPlaceEvent
 import org.bukkit.event.entity.EntityDamageByEntityEvent
 import org.bukkit.event.entity.EntityDamageEvent
-import org.bukkit.event.entity.EntitySpawnEvent
 import org.bukkit.event.entity.PlayerDeathEvent
 import org.bukkit.event.inventory.CraftItemEvent
 import org.bukkit.event.player.*
 import org.bukkit.event.world.WorldSaveEvent
 import org.bukkit.inventory.ItemStack
 import org.bukkit.inventory.ShapedRecipe
-import org.bukkit.inventory.meta.CompassMeta
 import org.bukkit.plugin.java.JavaPlugin
 import org.bukkit.potion.PotionEffect
 import org.bukkit.potion.PotionEffectType
-import org.bukkit.util.BoundingBox
 import org.bukkit.util.NumberConversions
 import java.io.File
-import java.util.function.Predicate
 import kotlin.random.Random
 
 class ZombieSurvivalPlugin : JavaPlugin(), Listener, Runnable {
     companion object {
-        val vaccine = ItemStack(Material.GOLDEN_APPLE).apply {
+        val vaccine = ItemStack(Material.TOTEM_OF_UNDYING).apply {
             itemMeta = itemMeta.apply { setDisplayName("${ChatColor.RESET}백신") }
         }
     }
@@ -131,6 +125,7 @@ class ZombieSurvivalPlugin : JavaPlugin(), Listener, Runnable {
             Surviverlocation.addPlayer(sur)
             val surt = Bukkit.getScoreboardManager().mainScoreboard.getTeam("survivor") ?: return
             surt.addPlayer(sur)
+            Zombie.fakeEntityServer.removePlayer(sur)
         }
     }
     @EventHandler
