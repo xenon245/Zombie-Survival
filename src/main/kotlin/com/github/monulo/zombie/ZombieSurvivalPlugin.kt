@@ -258,7 +258,7 @@ class ZombieSurvivalPlugin : JavaPlugin(), Listener, Runnable {
         if(event.action == Action.RIGHT_CLICK_AIR) {
             for(zombie1 in Zombie.superzombie) {
                 val zombie = Bukkit.getPlayer(zombie1)
-                if(item.type == Material.DIAMOND) {
+                if(item.type == Material.DIAMOND && !event.player.hasCooldown(Material.DIAMOND)) {
                     val player = event.player
                     if(zombie === player && player.getPotionEffect(PotionEffectType.POISON) != null) {
                         item.amount--
@@ -272,9 +272,9 @@ class ZombieSurvivalPlugin : JavaPlugin(), Listener, Runnable {
                             p.sendTitle("${ChatColor.RED}GRRR", "${ChatColor.WHITE}${player.name}님이 당신을 소환하려고 합니다.", 3, 20, 3)
                             p.playSound(p.location, Sound.ENTITY_ZOMBIE_AMBIENT, SoundCategory.MASTER, 2.0F, 1.0F)
                         }
-                        Bukkit.getScheduler().runTaskLater(this, Summon(player, list), 5 * 20)
+                        Bukkit.getScheduler().runTaskLater(this, Summon(player, list), 3 * 20)
                     }
-                } else if(item.type == Material.EMERALD) {
+                } else if(item.type == Material.EMERALD && !event.player.hasCooldown(Material.EMERALD)) {
                     val player = event.player
                     if(zombie === player && player.getPotionEffect(PotionEffectType.POISON) != null) {
                         val random = Random.nextInt(Zombie.survivers.size)
@@ -283,7 +283,7 @@ class ZombieSurvivalPlugin : JavaPlugin(), Listener, Runnable {
                         val task = Bukkit.getScheduler().runTaskTimer(this, TeleportToHuman(player2, event.player, event.player.location), 0L, 1L)
                         Bukkit.getScheduler().runTaskLater(this, task::cancel, 5 * 20)
                         event.item!!.amount--
-                        player.setCooldown(Material.EMERALD, 10 * 20)
+                        player.setCooldown(Material.EMERALD, 20 * 20)
                     }
                 } else if(item.type == Material.BOOK) {
                     val name = item.itemMeta.displayName
@@ -297,7 +297,7 @@ class ZombieSurvivalPlugin : JavaPlugin(), Listener, Runnable {
                 val zombie = Bukkit.getPlayer(zombie1)
                 if(zombie === event.player && event.player.getPotionEffect(PotionEffectType.POISON) != null) {
                     if(!Zombie.superzombie.contains(zombie.name)) {
-                        if(item.type == Material.DIAMOND) {
+                        if(item.type == Material.DIAMOND && !event.player.hasCooldown(Material.DIAMOND)) {
                             var list = arrayListOf<Player>()
                             for(sz in Zombie.superzombie) {
                                 list.add(Bukkit.getPlayer(sz)!!)
@@ -307,8 +307,9 @@ class ZombieSurvivalPlugin : JavaPlugin(), Listener, Runnable {
                                     list.remove(z)
                                 }
                             }
-                            val book = ItemStack(Material.BOOK).apply { itemMeta = itemMeta.apply { setDisplayName("${event.player.name}") }}
+                            val book = ItemStack(Material.BOOK).apply { itemMeta = itemMeta.apply { setDisplayName(event.player.name) }}
                             list.shuffled()[0].inventory.addItem(book)
+                            event.player.setCooldown(Material.DIAMOND, 20 * 20)
                             item.amount--
                         }
                     }
@@ -388,24 +389,15 @@ class ZombieSurvivalPlugin : JavaPlugin(), Listener, Runnable {
             }
         }
     }
-    @EventHandler
-    fun onEntitySpawn(event: EntitySpawnEvent) {
-        if(event.entityType != EntityType.DROPPED_ITEM && event.entityType != EntityType.PLAYER && event.entityType != EntityType.ARMOR_STAND) {
-            event.isCancelled = true
-        }
-    }
 }
 class Summon(val player: Player, val list : ArrayList<Player>) : Runnable {
-    private var ticks = 0
     override fun run() {
-        ticks++
-        if(ticks > 40) {
-            val firework = FireworkEffect.builder().withColor(Color.RED).withColor(Color.GREEN).with(FireworkEffect.Type.BALL_LARGE).build()
-            player.location.world.playFirework(player.location, firework, 1.0)
-            for(i in 1..10) {
-                list.shuffled()[i - 1].teleport(player.location)
-            }
+        val firework = FireworkEffect.builder().withColor(Color.RED).withColor(Color.GREEN).with(FireworkEffect.Type.BALL_LARGE).build()
+        player.location.world.playFirework(player.location, firework, 1.0)
+        for(i in 1..10) {
+            list.shuffled()[i - 1].teleport(player.location)
         }
+        player.world.strikeLightning(player.location)
     }
 }
 class TeleportToHuman(val target: Player, val player: Player, val location: Location) : Runnable {
