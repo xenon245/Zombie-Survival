@@ -30,11 +30,9 @@ object Surviverlocation {
         }
     }
     fun addSpectator(player: Player) {
-        if(spectator[player] == null) {
-            spectator[player] = player.world.spawnEntity(Location(player.world, player.location.x, player.location.y + 1.0, player.location.z), EntityType.ARMOR_STAND) as ArmorStand
-            spectator[player]?.isGlowing = true
-            spectator[player]?.setHelmet(ItemStack(Material.ENDER_EYE))
-        }
+        spectator[player] = player.world.spawnEntity(Location(player.world, player.location.x, player.location.y, player.location.z), EntityType.ARMOR_STAND) as ArmorStand
+        spectator[player]?.setHelmet(ItemStack(Material.ENDER_EYE))
+        spectator[player]?.isInvisible = true
     }
     fun removeSpectator(player: Player) {
         spectator[player]?.remove()
@@ -49,7 +47,7 @@ object Surviverlocation {
             fakeEntity[player]?.moveTo(Location(player.world, player.location.x, player.location.y + 1, player.location.z))
         }
         if(spectator[player] != null) {
-            spectator[player]?.teleport(Location(player.world, player.location.x, player.location.y + 1, player.location.z))
+            spectator[player]?.teleport(Location(player.world, player.location.x, player.location.y, player.location.z))
         }
     }
 }

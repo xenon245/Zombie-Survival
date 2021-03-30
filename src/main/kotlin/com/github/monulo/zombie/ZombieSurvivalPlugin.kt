@@ -272,7 +272,7 @@ class ZombieSurvivalPlugin : JavaPlugin(), Listener, Runnable {
                             p.sendTitle("${ChatColor.RED}GRRR", "${ChatColor.WHITE}${player.name}님이 당신을 소환하려고 합니다.", 3, 20, 3)
                             p.playSound(p.location, Sound.ENTITY_ZOMBIE_AMBIENT, SoundCategory.MASTER, 2.0F, 1.0F)
                         }
-                        Bukkit.getScheduler().runTaskLater(this, Summon(player, list), 2 * 20)
+                        Bukkit.getScheduler().runTaskLater(this, Summon(player, list), 5 * 20)
                     }
                 } else if(item.type == Material.EMERALD) {
                     val player = event.player
@@ -390,7 +390,7 @@ class ZombieSurvivalPlugin : JavaPlugin(), Listener, Runnable {
     }
     @EventHandler
     fun onEntitySpawn(event: EntitySpawnEvent) {
-        if(event.entityType != EntityType.DROPPED_ITEM && event.entityType != EntityType.PLAYER) {
+        if(event.entityType != EntityType.DROPPED_ITEM && event.entityType != EntityType.PLAYER && event.entityType != EntityType.ARMOR_STAND) {
             event.isCancelled = true
         }
     }
@@ -405,7 +405,6 @@ class Summon(val player: Player, val list : ArrayList<Player>) : Runnable {
             for(i in 1..10) {
                 list.shuffled()[i - 1].teleport(player.location)
             }
-            player.world.strikeLightning(player.location)
         }
     }
 }
