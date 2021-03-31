@@ -43,7 +43,7 @@ class ZombieSurvivalPlugin : JavaPlugin(), Listener, Runnable {
         val zombieteam = Bukkit.getScoreboardManager().mainScoreboard.getTeam("zombie") ?: return
         zombieteam.color(NamedTextColor.RED)
         val survivorteam = Bukkit.getScoreboardManager().mainScoreboard.getTeam("survivor") ?: return
-        survivorteam.color(NamedTextColor.AQUA)
+        survivorteam.color(NamedTextColor.WHITE)
         kommand {
             register("zs") {
                 ZombieKommand.register(this)
