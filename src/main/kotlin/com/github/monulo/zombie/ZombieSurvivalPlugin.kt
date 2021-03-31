@@ -83,13 +83,7 @@ class ZombieSurvivalPlugin : JavaPlugin(), Listener, Runnable {
     }
     private fun save() {
         for(player in Bukkit.getOnlinePlayers()) {
-            val yaml = ZombieSurvival.save(player as Player)
-            val dataFolder = dataFolder.also { it.mkdirs() }
-            val file = File(dataFolder, "${player.name}.yml")
-            yaml.save(file)
-        }
-        for(player in Bukkit.getOfflinePlayers()) {
-            val yaml = ZombieSurvival.save(player as Player)
+            val yaml = ZombieSurvival.save(player)
             val dataFolder = dataFolder.also { it.mkdirs() }
             val file = File(dataFolder, "${player.name}.yml")
             yaml.save(file)
@@ -213,6 +207,11 @@ class ZombieSurvivalPlugin : JavaPlugin(), Listener, Runnable {
     }
     @EventHandler
     fun onPlayerQuit(event: PlayerQuitEvent) {
+        val player = event.player
+        val yaml = ZombieSurvival.save(player)
+        val dataFolder = dataFolder.also { it.mkdirs() }
+        val file = File(dataFolder, "${player.name}.yml")
+        yaml.save(file)
         Zombie.fakeEntityServer.removePlayer(event.player)
         for(sur in Zombie.survivers) {
             val survivor = Bukkit.getPlayer(sur)
