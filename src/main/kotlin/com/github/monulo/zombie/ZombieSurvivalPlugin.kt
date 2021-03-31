@@ -82,6 +82,12 @@ class ZombieSurvivalPlugin : JavaPlugin(), Listener, Runnable {
         save()
     }
     private fun save() {
+        for(player in Bukkit.getOnlinePlayers()) {
+            val yaml = ZombieSurvival.save(player as Player)
+            val dataFolder = dataFolder.also { it.mkdirs() }
+            val file = File(dataFolder, "${player.name}.yml")
+            yaml.save(file)
+        }
         for(player in Bukkit.getOfflinePlayers()) {
             val yaml = ZombieSurvival.save(player as Player)
             val dataFolder = dataFolder.also { it.mkdirs() }
@@ -402,7 +408,7 @@ class TeleportToHuman(val target: Player, val player: Player, val location: Loca
         if(ticks == 1) {
             Surviverlocation.addSpectator(target)
         }
-        player.teleport(Location(target.world, target.location.x, target.location.y + 1, target.location.z))
+        player.teleport(Location(target.world, target.location.x, target.location.y + 1, target.location.z, player.location.yaw, player.location.pitch))
         player.gameMode = GameMode.SPECTATOR
         if(ticks >= 5 * 20 - 1) {
             Surviverlocation.removeSpectator(target)
