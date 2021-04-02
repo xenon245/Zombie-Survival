@@ -175,8 +175,13 @@ class ZombieSurvivalPlugin : JavaPlugin(), Listener, Runnable {
         for(zom in Zombie.zombie) {
             val zombie = Bukkit.getPlayer(zom)
             if(event.whoClicked === zombie) {
-                if(event.recipe.result.isSimilar(vaccine)) {
+                if(event.recipe.result.isSimilar(vaccine)
+                    || event.recipe.result.type.name.contains("CHESTPLATE")
+                    || event.recipe.result.type.name.contains("HELMET")
+                    || event.recipe.result.type.name.contains("BOOTS")
+                    || event.recipe.result.type.name.contains("LEGGINGS")) {
                     event.isCancelled = true
+                    event.whoClicked.sendMessage("${ChatColor.RED}이 아이템은 제작할 수 없습니다.")
                 }
             }
         }
